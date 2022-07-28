@@ -35,6 +35,7 @@ public class Transaction {
     @Column(nullable = false)
     private BigDecimal availableBalance;
 
+    //@Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type;
 

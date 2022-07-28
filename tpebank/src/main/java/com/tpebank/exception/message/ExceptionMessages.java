@@ -25,4 +25,12 @@ public class ExceptionMessages {
 
     public final static String RECIPIENT_VALIDATION_ERROR_MESSAGE="Recipient name has not matched";
 
+    public final static String RECIPIENT_NOT_FOUND_MESSAGE="Recipient with id %d not found";
+
+    public final static String RECIPIENT_DELETE_PERMISSON_MESSAGE="You don't have permission to delete this recipient";
+
+    public final static String USERACCOUNT_NOT_FOUND_MESSAGE="Account not found for user id %d";
+
+    public final static String BALANCE_NOT_AVAILABLE_MESSAGE="Your balance is not sufficient";
+
 }

@@ -35,6 +35,12 @@ public class TpeBankExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(error);
     }
 
+    @ExceptionHandler(BalanceNotAvailableException.class)
+    protected ResponseEntity<Object> handleBalanceNotAvailableException(BalanceNotAvailableException ex, WebRequest request){
+        ApiResponseError error=new ApiResponseError(HttpStatus.BAD_REQUEST,ex.getMessage(),request.getDescription(false));
+        return buildResponseEntity(error);
+    }
+
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ApiResponseError error=new ApiResponseError(status,ex.getMessage(),request.getDescription(false));

@@ -1,11 +1,20 @@
 package com.tpebank.controller;
 
+import com.tpebank.domain.User;
 import com.tpebank.dto.request.RecipientRequest;
+import com.tpebank.dto.request.TransactionRequest;
+import com.tpebank.dto.request.TransferRequest;
 import com.tpebank.dto.response.RecipientListResponse;
 import com.tpebank.dto.response.ResponseMessages;
 import com.tpebank.dto.response.TpeResponse;
+import com.tpebank.exception.ResourceNotFoundException;
+import com.tpebank.exception.message.ExceptionMessages;
+import com.tpebank.security.SecurityUtils;
+import com.tpebank.service.AccountService;
 import com.tpebank.service.RecipientService;
+import com.tpebank.service.UserService;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +29,10 @@ public class AccountController {
 
  private RecipientService recipientService;
 
+ private AccountService accountService;
+
+ private UserService userService;
+
  /*
  {
     "name":"bruce-update wayne-update",
@@ -29,7 +42,7 @@ localhost:8080/account/recipient
   */
 
 @PostMapping("/recipient")
- @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
+ @PreAuthorize("hasRole('CUSTOMER')")
  public ResponseEntity<TpeResponse> addRecipient(@Valid @RequestBody RecipientRequest recipientRequest){
   recipientService.addRecipient(recipientRequest);
   TpeResponse response=new TpeResponse(true, ResponseMessages.RECIPIENT_SAVE_RESPONSE_MESSAGE);
@@ -38,11 +51,91 @@ localhost:8080/account/recipient
 
 //localhost:8080/account/recipient
 @GetMapping("/recipient")
-@PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
+@PreAuthorize("hasRole('CUSTOMER')")
  public ResponseEntity<RecipientListResponse> getRecipient(){
     RecipientListResponse recipientListResponse=  recipientService.getRecipients();
     return ResponseEntity.ok(recipientListResponse);
 }
+
+    //localhost:8080/account/recipient/1
+@PreAuthorize("hasRole('CUSTOMER')")
+@DeleteMapping("/recipient/{id}")
+public ResponseEntity<TpeResponse> deleteRecipient(@PathVariable Long id){
+           recipientService.deleteRecipient(id);
+    TpeResponse response=new TpeResponse(true, ResponseMessages.RECIPIENT_DELETE_RESPONSE_MESSAGE);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+
+}
+
+  /*
+    {
+    "amount":2550,
+    "comment":"It is a deposit"
+}
+     */
+
+
+@PostMapping("/deposit")
+@PreAuthorize("hasRole('CUSTOMER')")
+public ResponseEntity<TpeResponse> deposit(@Valid @RequestBody TransactionRequest transactionRequest){
+
+    String userName= SecurityUtils.getCurrentUserLogin().orElseThrow(()->new
+            ResourceNotFoundException(ExceptionMessages.CURRENTUSER_NOT_FOUND_MESSAGE));
+
+    User user= userService.getUserByUserName(userName);
+
+
+    accountService.deposit(transactionRequest,user);
+
+    TpeResponse response=new TpeResponse(true, ResponseMessages.DEPOSIT_RESPONSE_MESSAGE);
+    return new ResponseEntity<>(response, HttpStatus.CREATED);
+}
+
+  /*
+    {
+    "amount":2550,
+    "comment":"It is a deposit"
+}
+     */
+
+    @PostMapping("/withdraw")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<TpeResponse> withdraw(@Valid @RequestBody TransactionRequest transactionRequest){
+
+        String userName= SecurityUtils.getCurrentUserLogin().orElseThrow(()->new
+                ResourceNotFoundException(ExceptionMessages.CURRENTUSER_NOT_FOUND_MESSAGE));
+
+        User user= userService.getUserByUserName(userName);
+
+
+        accountService.withdraw(transactionRequest,user);
+
+        TpeResponse response=new TpeResponse(true, ResponseMessages.WITHDRAW_RESPONSE_MESSAGE);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    /*
+    {
+    "recipientNumber":1549788318050308,
+    "amount":2550,
+    "comment":"It is a deposit"
+}
+     */
+    @PostMapping("/transfer")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<TpeResponse> transfer(@Valid @RequestBody TransferRequest transferRequest){
+
+        String userName= SecurityUtils.getCurrentUserLogin().orElseThrow(()->new
+                ResourceNotFoundException(ExceptionMessages.CURRENTUSER_NOT_FOUND_MESSAGE));
+
+        User user= userService.getUserByUserName(userName);
+
+        accountService.transfer(transferRequest,user);
+
+        TpeResponse response=new TpeResponse(true, ResponseMessages.TRANSFER_RESPONSE_MESSAGE);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
 
 

@@ -55,6 +55,21 @@ public class RecipientService {
        recipientRepository.save(recipient);
     }
 
+    public void deleteRecipient(Long id){
+        String userName= SecurityUtils.getCurrentUserLogin().orElseThrow(()->new
+                ResourceNotFoundException(ExceptionMessages.CURRENTUSER_NOT_FOUND_MESSAGE));
+        User user= userService.getUserByUserName(userName);
+
+        Recipient recipient= recipientRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException(String.format(ExceptionMessages.RECIPIENT_NOT_FOUND_MESSAGE,id)));
+
+        if(user.getId().equals(recipient.getUser().getId())){
+            recipientRepository.deleteById(recipient.getId());
+        }else{
+            throw new ConflictException(ExceptionMessages.RECIPIENT_DELETE_PERMISSON_MESSAGE);
+        }
+
+    }
 
     public RecipientListResponse getRecipients(){
         String userName= SecurityUtils.getCurrentUserLogin().orElseThrow(()->new

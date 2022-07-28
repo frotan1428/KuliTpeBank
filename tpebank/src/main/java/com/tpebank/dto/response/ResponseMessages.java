@@ -8,4 +8,12 @@ public class ResponseMessages {
     public static  final String USER_UPDATE_RESPONSE_MESSAGE= "User Updated Successfully";
 
     public static  final String RECIPIENT_SAVE_RESPONSE_MESSAGE= "Recipient saved Successfully";
+
+    public static  final String RECIPIENT_DELETE_RESPONSE_MESSAGE= "Recipient deleted Successfully";
+
+    public static  final String DEPOSIT_RESPONSE_MESSAGE= "Amount Successfully Deposited";
+
+    public static  final String WITHDRAW_RESPONSE_MESSAGE= "Amount Successfully Withdraw";
+
+    public static  final String TRANSFER_RESPONSE_MESSAGE= "Amount Successfully Transferred";
 }
