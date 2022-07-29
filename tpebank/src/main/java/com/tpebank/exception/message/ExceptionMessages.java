@@ -33,4 +33,6 @@ public class ExceptionMessages {
 
     public final static String BALANCE_NOT_AVAILABLE_MESSAGE="Your balance is not sufficient";
 
+    public final static String USERRECIPIENT_NOT_FOUND_MESSAGE="Recipient with account number %d not found in the user recipient list";
+
 }

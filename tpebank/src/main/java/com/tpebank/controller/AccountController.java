@@ -4,23 +4,24 @@ import com.tpebank.domain.User;
 import com.tpebank.dto.request.RecipientRequest;
 import com.tpebank.dto.request.TransactionRequest;
 import com.tpebank.dto.request.TransferRequest;
-import com.tpebank.dto.response.RecipientListResponse;
-import com.tpebank.dto.response.ResponseMessages;
-import com.tpebank.dto.response.TpeResponse;
+import com.tpebank.dto.response.*;
 import com.tpebank.exception.ResourceNotFoundException;
 import com.tpebank.exception.message.ExceptionMessages;
 import com.tpebank.security.SecurityUtils;
 import com.tpebank.service.AccountService;
 import com.tpebank.service.RecipientService;
+import com.tpebank.service.TransactionService;
 import com.tpebank.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/account")
@@ -32,6 +33,8 @@ public class AccountController {
  private AccountService accountService;
 
  private UserService userService;
+
+ private TransactionService transactionService;
 
  /*
  {
@@ -136,6 +139,35 @@ public ResponseEntity<TpeResponse> deposit(@Valid @RequestBody TransactionReques
         TpeResponse response=new TpeResponse(true, ResponseMessages.TRANSFER_RESPONSE_MESSAGE);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+
+    @GetMapping("/bankstatement")
+    @PreAuthorize("hasRole('ADMIN')")
+    //2022-07-28
+    public ResponseEntity<BankStatementResponse> getBankStatement
+             (@RequestParam(value="startDate") @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate startDate,
+             @RequestParam(value="endDate") @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        BankStatementResponse response=  transactionService.calculateBankStatement(startDate,endDate);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/customerstatement")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    //2022-07-28
+    public ResponseEntity<CustomerStatementResponse> getCustomerStatement
+            (@RequestParam(value="startDate") @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate startDate,
+             @RequestParam(value="endDate") @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        String userName= SecurityUtils.getCurrentUserLogin().orElseThrow(()->new
+                ResourceNotFoundException(ExceptionMessages.CURRENTUSER_NOT_FOUND_MESSAGE));
+
+        User user= userService.getUserByUserName(userName);
+
+        CustomerStatementResponse response=  transactionService.calculateCustomerStatement(startDate,endDate,user);
+        return ResponseEntity.ok(response);
+    }
+
 
 
 

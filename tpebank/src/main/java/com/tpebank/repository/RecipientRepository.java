@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface RecipientRepository extends JpaRepository<Recipient,Long> {
 
     Boolean existsByUserAndAccount(User user, Account account);
+
+
 }

@@ -115,13 +115,19 @@ public class AccountService {
             throw new BalanceNotAvailableException(ExceptionMessages.BALANCE_NOT_AVAILABLE_MESSAGE);
         }
 
-        //TODO:check if this recipient is in the recipient list or not
+
 
        Account accountTo= accountRepository.findByAccountNumber(transferRequest.getRecipientNumber()).
                 orElseThrow(()->new ResourceNotFoundException
                         (String.format(ExceptionMessages.ACCOUNT_NOT_FOUND_MESSAGE,transferRequest.getRecipientNumber())));
 
 
+        boolean exist= accountRepository.existsRecipient(user.getId(),accountTo.getId());
+
+        if(!exist){
+            throw new ResourceNotFoundException(String.format(ExceptionMessages.USERRECIPIENT_NOT_FOUND_MESSAGE,
+                    transferRequest.getRecipientNumber()));
+        }
 
         double amount=transferRequest.getAmount();
 
